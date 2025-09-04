@@ -212,13 +212,23 @@ startBtn.addEventListener("click", () => {
 
 const darkToggleBtn = document.getElementById("dark-toggle");
 
+// ✅ Check dark mode on page load
+if (localStorage.getItem("dark-mode") === "enabled") {
+  document.body.classList.add("dark");
+  darkToggleBtn.textContent = "☀️ Light Mode";
+} else {
+  darkToggleBtn.textContent = "🌙 Dark Mode";
+}
+
+// ✅ Toggle dark mode on button click and save to localStorage
 darkToggleBtn.addEventListener("click", () => {
   document.body.classList.toggle("dark");
 
-  // Optional: Toggle button icon/text
   if (document.body.classList.contains("dark")) {
+    localStorage.setItem("dark-mode", "enabled");
     darkToggleBtn.textContent = "☀️ Light Mode";
   } else {
+    localStorage.setItem("dark-mode", "disabled");
     darkToggleBtn.textContent = "🌙 Dark Mode";
   }
 });
