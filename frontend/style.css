@@ -184,4 +184,13 @@ body.dark .status.correct {
 body.dark .status.wrong {
   color: #ff5555;
 }
+#share-score {
+  background: #007bff;
+  margin-top: 10px;
+}
+
+#share-score:hover {
+  background: #0056b3;
+}
+
 
