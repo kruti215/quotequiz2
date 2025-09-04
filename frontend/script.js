@@ -209,3 +209,17 @@ startBtn.addEventListener("click", () => {
   startScreen.classList.add("hidden");
   resetGame();
 });
+
+const darkToggleBtn = document.getElementById("dark-toggle");
+
+darkToggleBtn.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+
+  // Optional: Toggle button icon/text
+  if (document.body.classList.contains("dark")) {
+    darkToggleBtn.textContent = "☀️ Light Mode";
+  } else {
+    darkToggleBtn.textContent = "🌙 Dark Mode";
+  }
+});
+
