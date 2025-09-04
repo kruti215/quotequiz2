@@ -8,36 +8,39 @@
 </head>
 <body>
   <div class="app">
+    <!-- Dark Mode Toggle -->
     <div class="theme-toggle">
       <button id="dark-toggle">🌙 Dark Mode</button>
     </div>
-    
+
     <!-- Start Screen -->
-   <div id="start-screen">
-  <h2>Welcome to the Quote Quiz!</h2>
-  <p>Can you guess the missing word in 10 quotes before time runs out?</p>
+    <div id="start-screen">
+      <h2>Welcome to the Quote Quiz!</h2>
+      <p>Can you guess the missing word in 10 quotes before time runs out?</p>
 
-  <label for="category-select">Choose a category:</label>
-  <select id="category-select">
-    <option value="">Any</option>
-    <option value="motivational">Motivational</option>
-    <option value="famous-quotes">Famous</option>
-    <option value="life">Life</option>
-    <option value="wisdom">Wisdom</option>
-    <option value="inspirational">Inspirational</option>
-    <option value="friendship">Friendship</option>
-    <option value="literature">Literature</option>
-  </select>
+      <label for="category-select">Choose a category:</label>
+      <select id="category-select">
+        <option value="">Any</option>
+        <option value="motivational">Motivational</option>
+        <option value="famous-quotes">Famous</option>
+        <option value="life">Life</option>
+        <option value="wisdom">Wisdom</option>
+        <option value="inspirational">Inspirational</option>
+        <option value="friendship">Friendship</option>
+        <option value="literature">Literature</option>
+      </select>
 
-  <button id="start-btn" class="next-btn">Start Quiz</button>
-</div>
-
+      <button id="start-btn" class="next-btn">Start Quiz</button>
+    </div>
 
     <!-- Game Over Screen -->
     <div id="game-over" class="hidden">
       <h2 id="game-over-message"></h2>
       <p id="final-score"></p>
+
       <button id="play-again" class="next-btn">Play Again</button>
+      <button id="share-score" class="next-btn">🔗 Share My Score</button>
+      <p id="share-status" style="margin-top: 10px; font-size: 0.9rem;"></p>
     </div>
 
     <!-- Game Section -->
@@ -63,7 +66,6 @@
 
   <script src="script.js"></script>
 </body>
-
 </html>
 
 
