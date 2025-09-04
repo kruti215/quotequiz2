@@ -118,3 +118,70 @@ button.selected {
     width: 100%;
   }
 }
+/* Theme Toggle Button */
+.theme-toggle {
+  text-align: right;
+  margin-bottom: 10px;
+}
+
+#dark-toggle {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+#dark-toggle:hover {
+  background: #555;
+}
+
+/* Dark Mode Styles */
+body.dark {
+  background: #121212;
+  color: #e0e0e0;
+}
+
+body.dark .app {
+  background: #1e1e1e;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+}
+
+body.dark .quote-box {
+  background: #2b2b2b;
+}
+
+body.dark button {
+  background: #333;
+  border-color: #007bff;
+  color: #e0e0e0;
+}
+
+body.dark button:hover:not(:disabled) {
+  background: #007bff;
+  color: white;
+}
+
+body.dark button.selected {
+  background: #007bff;
+  color: white;
+}
+
+body.dark .next-btn {
+  background: #28a745;
+}
+
+body.dark .next-btn:hover {
+  background: #218838;
+}
+
+body.dark .status.correct {
+  color: #00ff88;
+}
+
+body.dark .status.wrong {
+  color: #ff5555;
+}
+
