@@ -13,11 +13,25 @@
     </div>
     
     <!-- Start Screen -->
-    <div id="start-screen">
-      <h2>Welcome to the Quote Quiz!</h2>
-      <p>Can you guess the missing word in 10 quotes before time runs out?</p>
-      <button id="start-btn" class="next-btn">Start Quiz</button>
-    </div>
+   <div id="start-screen">
+  <h2>Welcome to the Quote Quiz!</h2>
+  <p>Can you guess the missing word in 10 quotes before time runs out?</p>
+
+  <label for="category-select">Choose a category:</label>
+  <select id="category-select">
+    <option value="">Any</option>
+    <option value="motivational">Motivational</option>
+    <option value="famous-quotes">Famous</option>
+    <option value="life">Life</option>
+    <option value="wisdom">Wisdom</option>
+    <option value="inspirational">Inspirational</option>
+    <option value="friendship">Friendship</option>
+    <option value="literature">Literature</option>
+  </select>
+
+  <button id="start-btn" class="next-btn">Start Quiz</button>
+</div>
+
 
     <!-- Game Over Screen -->
     <div id="game-over" class="hidden">
@@ -51,5 +65,6 @@
 </body>
 
 </html>
+
 
 
