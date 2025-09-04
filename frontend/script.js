@@ -11,6 +11,7 @@ let timer = TOTAL_TIME;
 let questionCount = 0;
 let gameOver = false;
 let countdownInterval = null;
+let selectedCategory = "";
 
 // DOM Elements
 const timerEl = document.getElementById("timer");
@@ -27,20 +28,28 @@ const gameOverMessageEl = document.getElementById("game-over-message");
 const playAgainBtn = document.getElementById("play-again");
 const startScreen = document.getElementById("start-screen");
 const startBtn = document.getElementById("start-btn");
+const categorySelect = document.getElementById("category-select");
+const shareBtn = document.getElementById("share-score");
+const shareStatus = document.getElementById("share-status");
 
+// Utility Functions
 const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 const normalize = (s) => s.toLowerCase().replace(/[^a-z]/g, "");
 
-// Fetch a random quote and set up the question
+// Fetch a random quote and setup the question
 async function fetchQuote() {
   let quoteData = null;
   let words = [];
-  quizQuoteEl.textContent = "Loading...";
-  optionsEl.innerHTML = "";
 
   while (true) {
-    const res = await fetch("https://api.quotable.io/random");
+    let url = "https://api.quotable.io/random";
+    if (selectedCategory) {
+      url += `?tags=${selectedCategory}`;
+    }
+
+    const res = await fetch(url);
     const data = await res.json();
+
     words = data.content.split(" ").filter((word) => word.length > 3);
     if (words.length >= 4) {
       quoteData = data;
@@ -62,13 +71,18 @@ async function fetchQuote() {
   renderQuote();
 }
 
-// Generate answer options
+// Generate multiple choice options
 async function generateOptions(correctWord) {
   const distractors = new Set();
   distractors.add(correctWord.toLowerCase());
 
   while (distractors.size < 4) {
-    const res = await fetch("https://api.quotable.io/random");
+    let url = "https://api.quotable.io/random";
+    if (selectedCategory) {
+      url += `?tags=${selectedCategory}`;
+    }
+
+    const res = await fetch(url);
     const data = await res.json();
     const words = data.content.split(" ").filter((w) => w.length > 3);
     if (words.length) {
@@ -82,7 +96,7 @@ async function generateOptions(correctWord) {
     .sort(() => 0.5 - Math.random());
 }
 
-// Render question and options
+// Render the quote and options
 function renderQuote() {
   timerEl.textContent = timer;
   scoreEl.textContent = score;
@@ -102,15 +116,13 @@ function renderQuote() {
   });
 }
 
-// Handle user selecting an option
+// Handle answer selection
 function handleSelect(option, btn) {
   selected = option;
   const buttons = optionsEl.querySelectorAll("button");
   buttons.forEach((b) => (b.disabled = true));
 
-  const correct = normalize(option) === normalize(missingWord);
-
-  if (correct) {
+  if (normalize(option) === normalize(missingWord)) {
     statusEl.textContent = "Correct!";
     statusEl.className = "status correct";
     score++;
@@ -118,7 +130,7 @@ function handleSelect(option, btn) {
     statusEl.textContent = `Wrong! — Correct: ${capitalize(missingWord)}`;
     statusEl.className = "status wrong";
 
-    // Highlight the correct answer
+    // Highlight correct answer
     buttons.forEach((b) => {
       if (normalize(b.textContent) === normalize(missingWord)) {
         b.classList.add("selected");
@@ -130,10 +142,9 @@ function handleSelect(option, btn) {
   nextBtn.disabled = false;
 }
 
-// Load next question or end game
+// Load next question or end the game
 function nextQuote() {
   if (questionCount + 1 >= TOTAL_QUESTIONS) {
-    nextBtn.disabled = true;
     endGame("completed");
   } else {
     questionCount++;
@@ -157,21 +168,21 @@ function endGame(reason) {
   finalScoreEl.textContent = `Final Score: ${score} / ${TOTAL_QUESTIONS}`;
 }
 
-// Reset game and restart timer
+// Reset the game state
 function resetGame() {
   score = 0;
   timer = TOTAL_TIME;
   questionCount = 0;
   gameOver = false;
-
-  gameSection.classList.remove("hidden");
   gameOverSection.classList.add("hidden");
+  gameSection.classList.remove("hidden");
+  shareStatus.textContent = "";
 
   fetchQuote();
   startTimer();
 }
 
-// Start the countdown timer
+// Start countdown timer
 function startTimer() {
   if (countdownInterval) {
     clearInterval(countdownInterval);
@@ -184,11 +195,13 @@ function startTimer() {
       timer--;
       timerEl.textContent = timer;
 
-      // Red warning if time < 10s
+      // Red timer warning
       if (timer <= 10) {
-        timerEl.classList.add("timer-warning");
+        timerEl.style.color = "red";
+        timerEl.style.fontWeight = "bold";
       } else {
-        timerEl.classList.remove("timer-warning");
+        timerEl.style.color = "";
+        timerEl.style.fontWeight = "";
       }
 
     } else {
@@ -198,21 +211,49 @@ function startTimer() {
   }, 1000);
 }
 
-// Event Listeners
+// Event listeners
 nextBtn.addEventListener("click", nextQuote);
 playAgainBtn.addEventListener("click", () => {
   gameOverSection.classList.add("hidden");
   startScreen.classList.remove("hidden");
 });
-
 startBtn.addEventListener("click", () => {
+  selectedCategory = categorySelect.value;
   startScreen.classList.add("hidden");
   resetGame();
 });
 
+// Share Score
+shareBtn.addEventListener("click", () => {
+  const text = `🎉 I scored ${score}/${TOTAL_QUESTIONS} in the Quote Quiz! Can you beat me?`;
+  const url = window.location.href;
+
+  if (navigator.share) {
+    navigator
+      .share({
+        title: "Quote Quiz Score",
+        text: text,
+        url: url,
+      })
+      .then(() => {
+        shareStatus.textContent = "✅ Shared successfully!";
+      })
+      .catch(() => {
+        shareStatus.textContent = "❌ Share cancelled.";
+      });
+  } else {
+    // Fallback: copy to clipboard
+    navigator.clipboard.writeText(`${text} ${url}`).then(() => {
+      shareStatus.textContent = "✅ Score copied to clipboard!";
+    }).catch(() => {
+      shareStatus.textContent = "❌ Failed to copy score.";
+    });
+  }
+});
+
+// Dark Mode Toggle
 const darkToggleBtn = document.getElementById("dark-toggle");
 
-// ✅ Check dark mode on page load
 if (localStorage.getItem("dark-mode") === "enabled") {
   document.body.classList.add("dark");
   darkToggleBtn.textContent = "☀️ Light Mode";
@@ -220,7 +261,6 @@ if (localStorage.getItem("dark-mode") === "enabled") {
   darkToggleBtn.textContent = "🌙 Dark Mode";
 }
 
-// ✅ Toggle dark mode on button click and save to localStorage
 darkToggleBtn.addEventListener("click", () => {
   document.body.classList.toggle("dark");
 
@@ -232,4 +272,3 @@ darkToggleBtn.addEventListener("click", () => {
     darkToggleBtn.textContent = "🌙 Dark Mode";
   }
 });
-
