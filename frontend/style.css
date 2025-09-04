@@ -14,7 +14,7 @@ body {
   text-align: center;
 }
 
-h1 {
+h1, h2 {
   color: #333;
   margin-bottom: 10px;
 }
@@ -93,6 +93,11 @@ button.selected {
   display: none;
 }
 
+.timer-warning {
+  color: red;
+  font-weight: bold;
+}
+
 @media (max-width: 600px) {
   .app {
     margin: 20px;
@@ -101,5 +106,15 @@ button.selected {
 
   .options button {
     font-size: 0.95rem;
+  }
+
+  .info-bar {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .next-btn {
+    width: 100%;
   }
 }
