@@ -10,7 +10,7 @@ let score = 0;
 let timer = TOTAL_TIME;
 let questionCount = 0;
 let gameOver = false;
-let countdownInterval = null; // <-- added for timer management
+let countdownInterval = null;
 
 // DOM Elements
 const timerEl = document.getElementById("timer");
@@ -25,6 +25,8 @@ const gameSection = document.getElementById("game-section");
 const finalScoreEl = document.getElementById("final-score");
 const gameOverMessageEl = document.getElementById("game-over-message");
 const playAgainBtn = document.getElementById("play-again");
+const startScreen = document.getElementById("start-screen");
+const startBtn = document.getElementById("start-btn");
 
 const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 const normalize = (s) => s.toLowerCase().replace(/[^a-z]/g, "");
@@ -33,6 +35,9 @@ const normalize = (s) => s.toLowerCase().replace(/[^a-z]/g, "");
 async function fetchQuote() {
   let quoteData = null;
   let words = [];
+  quizQuoteEl.textContent = "Loading...";
+  optionsEl.innerHTML = "";
+
   while (true) {
     const res = await fetch("https://api.quotable.io/random");
     const data = await res.json();
@@ -77,7 +82,7 @@ async function generateOptions(correctWord) {
     .sort(() => 0.5 - Math.random());
 }
 
-// Render question and options to the DOM
+// Render question and options
 function renderQuote() {
   timerEl.textContent = timer;
   scoreEl.textContent = score;
@@ -103,13 +108,22 @@ function handleSelect(option, btn) {
   const buttons = optionsEl.querySelectorAll("button");
   buttons.forEach((b) => (b.disabled = true));
 
-  if (normalize(option) === normalize(missingWord)) {
+  const correct = normalize(option) === normalize(missingWord);
+
+  if (correct) {
     statusEl.textContent = "Correct!";
     statusEl.className = "status correct";
     score++;
   } else {
     statusEl.textContent = `Wrong! — Correct: ${capitalize(missingWord)}`;
     statusEl.className = "status wrong";
+
+    // Highlight the correct answer
+    buttons.forEach((b) => {
+      if (normalize(b.textContent) === normalize(missingWord)) {
+        b.classList.add("selected");
+      }
+    });
   }
 
   btn.classList.add("selected");
@@ -119,6 +133,7 @@ function handleSelect(option, btn) {
 // Load next question or end game
 function nextQuote() {
   if (questionCount + 1 >= TOTAL_QUESTIONS) {
+    nextBtn.disabled = true;
     endGame("completed");
   } else {
     questionCount++;
@@ -129,7 +144,7 @@ function nextQuote() {
 // End the game
 function endGame(reason) {
   gameOver = true;
-  clearInterval(countdownInterval); // stop timer
+  clearInterval(countdownInterval);
   gameSection.classList.add("hidden");
   gameOverSection.classList.remove("hidden");
 
@@ -153,12 +168,11 @@ function resetGame() {
   gameOverSection.classList.add("hidden");
 
   fetchQuote();
-  startTimer(); // restart timer countdown
+  startTimer();
 }
 
 // Start the countdown timer
 function startTimer() {
-  // clear any previous interval to avoid duplicates
   if (countdownInterval) {
     clearInterval(countdownInterval);
   }
@@ -169,6 +183,14 @@ function startTimer() {
     } else if (timer > 0) {
       timer--;
       timerEl.textContent = timer;
+
+      // Red warning if time < 10s
+      if (timer <= 10) {
+        timerEl.classList.add("timer-warning");
+      } else {
+        timerEl.classList.remove("timer-warning");
+      }
+
     } else {
       clearInterval(countdownInterval);
       endGame("timeout");
@@ -176,10 +198,14 @@ function startTimer() {
   }, 1000);
 }
 
-// Event listeners
+// Event Listeners
 nextBtn.addEventListener("click", nextQuote);
-playAgainBtn.addEventListener("click", resetGame);
+playAgainBtn.addEventListener("click", () => {
+  gameOverSection.classList.add("hidden");
+  startScreen.classList.remove("hidden");
+});
 
-// Start the game on page load
-fetchQuote();
-startTimer();
+startBtn.addEventListener("click", () => {
+  startScreen.classList.add("hidden");
+  resetGame();
+});
