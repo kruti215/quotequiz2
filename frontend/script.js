@@ -34,16 +34,16 @@ async function fetchQuote() {
   let quoteData = null;
   let words = [];
   while (true) {
-    const res = await fetch("https://api.quotable.io/random");
+    const res = await fetch("https://dummyjson.com/quotes/random");
     const data = await res.json();
-    words = data.content.split(" ").filter((word) => word.length > 3);
+    words = data.quote.split(" ").filter((word) => word.length > 3);
     if (words.length >= 4) {
       quoteData = data;
       break;
     }
   }
 
-  quote = quoteData.content;
+  quote = quoteData.quote;
   const wordList = quote.split(" ");
   const wordToRemove = words[Math.floor(Math.random() * words.length)];
   missingWord = wordToRemove.replace(/[^a-zA-Z]/g, "");
@@ -63,9 +63,9 @@ async function generateOptions(correctWord) {
   distractors.add(correctWord.toLowerCase());
 
   while (distractors.size < 4) {
-    const res = await fetch("https://api.quotable.io/random");
+    const res = await fetch("https://dummyjson.com/quotes/random");
     const data = await res.json();
-    const words = data.content.split(" ").filter((w) => w.length > 3);
+    const words = data.quote.split(" ").filter((w) => w.length > 3);
     if (words.length) {
       const randomWord = words[Math.floor(Math.random() * words.length)];
       distractors.add(randomWord.toLowerCase());
@@ -183,3 +183,4 @@ playAgainBtn.addEventListener("click", resetGame);
 // Start the game on page load
 fetchQuote();
 startTimer();
+
