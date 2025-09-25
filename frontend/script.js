@@ -1,3 +1,4 @@
+
 const TOTAL_QUESTIONS = 10;
 const TOTAL_TIME = 50;
 
@@ -10,7 +11,7 @@ let score = 0;
 let timer = TOTAL_TIME;
 let questionCount = 0;
 let gameOver = false;
-let countdownInterval = null; // <-- added for timer management
+let countdownInterval = null;
 
 // DOM Elements
 const timerEl = document.getElementById("timer");
@@ -19,12 +20,16 @@ const questionCountEl = document.getElementById("question-count");
 const quizQuoteEl = document.getElementById("quiz-quote");
 const optionsEl = document.getElementById("options");
 const statusEl = document.getElementById("status");
-const nextBtn = document.getElementById("next-btn");
 const gameOverSection = document.getElementById("game-over");
 const gameSection = document.getElementById("game-section");
 const finalScoreEl = document.getElementById("final-score");
 const gameOverMessageEl = document.getElementById("game-over-message");
 const playAgainBtn = document.getElementById("play-again");
+const startScreen = document.getElementById("start-screen");
+const startBtn = document.getElementById("start-btn");
+const darkToggleBtn = document.getElementById("dark-toggle");
+const spinnerEl = document.getElementById("spinner");
+
 
 const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 const normalize = (s) => s.toLowerCase().replace(/[^a-z]/g, "");
@@ -33,6 +38,15 @@ const normalize = (s) => s.toLowerCase().replace(/[^a-z]/g, "");
 async function fetchQuote() {
   let quoteData = null;
   let words = [];
+  // quizQuoteEl.textContent = "Loading...";
+  // optionsEl.innerHTML = "";
+
+    // show spinner
+  spinnerEl.classList.remove("hidden");
+  quizQuoteEl.textContent = "";
+  optionsEl.innerHTML = "";
+
+
   while (true) {
     const res = await fetch("https://dummyjson.com/quotes/random");
     const data = await res.json();
@@ -54,7 +68,10 @@ async function fetchQuote() {
 
   options = await generateOptions(wordToRemove);
 
-  renderQuote();
+    // hide spinner
+  spinnerEl.classList.add("hidden");
+
+  renderQuote(quoteData.author);
 }
 
 // Generate answer options
@@ -77,15 +94,14 @@ async function generateOptions(correctWord) {
     .sort(() => 0.5 - Math.random());
 }
 
-// Render question and options to the DOM
-function renderQuote() {
+// Render question and options
+function renderQuote(author = "") {
   timerEl.textContent = timer;
   scoreEl.textContent = score;
   questionCountEl.textContent = questionCount + 1;
-  quizQuoteEl.textContent = `"${quizQuote}"`;
+  quizQuoteEl.textContent = `"${quizQuote}"` + (author ? ` — ${author}` : "");
   statusEl.textContent = "";
   statusEl.className = "status";
-  nextBtn.disabled = true;
   selected = null;
 
   optionsEl.innerHTML = "";
@@ -103,33 +119,41 @@ function handleSelect(option, btn) {
   const buttons = optionsEl.querySelectorAll("button");
   buttons.forEach((b) => (b.disabled = true));
 
-  if (normalize(option) === normalize(missingWord)) {
-    statusEl.textContent = "Correct!";
+  const correct = normalize(option) === normalize(missingWord);
+
+  if (correct) {
     statusEl.className = "status correct";
     score++;
+    btn.classList.add("correct"); // green for correct choice
   } else {
-    statusEl.textContent = `Wrong! — Correct: ${capitalize(missingWord)}`;
     statusEl.className = "status wrong";
+
+    // Highlight the correct answer in green
+    buttons.forEach((b) => {
+      if (normalize(b.textContent) === normalize(missingWord)) {
+        b.classList.add("correct");
+      }
+    });
+
+    // Mark the chosen wrong one in red
+    btn.classList.add("wrong");
   }
 
-  btn.classList.add("selected");
-  nextBtn.disabled = false;
-}
-
-// Load next question or end game
-function nextQuote() {
-  if (questionCount + 1 >= TOTAL_QUESTIONS) {
-    endGame("completed");
-  } else {
-    questionCount++;
-    fetchQuote();
-  }
+  // Auto-advance after 1.5 seconds
+  setTimeout(() => {
+    if (questionCount + 1 >= TOTAL_QUESTIONS) {
+      endGame("completed");
+    } else {
+      questionCount++;
+      fetchQuote();
+    }
+  }, 500);
 }
 
 // End the game
 function endGame(reason) {
   gameOver = true;
-  clearInterval(countdownInterval); // stop timer
+  clearInterval(countdownInterval);
   gameSection.classList.add("hidden");
   gameOverSection.classList.remove("hidden");
 
@@ -153,12 +177,11 @@ function resetGame() {
   gameOverSection.classList.add("hidden");
 
   fetchQuote();
-  startTimer(); // restart timer countdown
+  startTimer();
 }
 
 // Start the countdown timer
 function startTimer() {
-  // clear any previous interval to avoid duplicates
   if (countdownInterval) {
     clearInterval(countdownInterval);
   }
@@ -169,6 +192,14 @@ function startTimer() {
     } else if (timer > 0) {
       timer--;
       timerEl.textContent = timer;
+
+      // Red warning if time < 10s
+      if (timer <= 10) {
+        timerEl.classList.add("timer-warning");
+      } else {
+        timerEl.classList.remove("timer-warning");
+      }
+
     } else {
       clearInterval(countdownInterval);
       endGame("timeout");
@@ -176,11 +207,33 @@ function startTimer() {
   }, 1000);
 }
 
-// Event listeners
-nextBtn.addEventListener("click", nextQuote);
-playAgainBtn.addEventListener("click", resetGame);
+// Event Listeners
+playAgainBtn.addEventListener("click", () => {
+  gameOverSection.classList.add("hidden");
+  startScreen.classList.remove("hidden");
+});
 
-// Start the game on page load
-fetchQuote();
-startTimer();
+startBtn.addEventListener("click", () => {
+  startScreen.classList.add("hidden");
+  resetGame();
+});
 
+// ✅ Dark mode setup
+if (localStorage.getItem("dark-mode") === "enabled") {
+  document.body.classList.add("dark");
+  darkToggleBtn.textContent = "☀️ Light Mode";
+} else {
+  darkToggleBtn.textContent = "🌙 Dark Mode";
+}
+
+darkToggleBtn.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+
+  if (document.body.classList.contains("dark")) {
+    localStorage.setItem("dark-mode", "enabled");
+    darkToggleBtn.textContent = "☀️ Light Mode";
+  } else {
+    localStorage.setItem("dark-mode", "disabled");
+    darkToggleBtn.textContent = "🌙 Dark Mode";
+  }
+});
