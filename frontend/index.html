@@ -10,30 +10,46 @@
   <div class="app">
     <h1>Quote Quiz</h1>
 
+    <!-- 🌙 Dark Mode Toggle -->
+    <button id="dark-toggle" class="dark-toggle">🌙 Dark Mode</button>
+
+    <!-- 🟢 Start Screen -->
+    <div id="start-screen">
+      <h2>Welcome to the Quote Quiz!</h2>
+      <p>Guess the missing word from famous quotes. You have 50 seconds ⏱️</p>
+      <button id="start-btn" class="start-btn">Start Quiz</button>
+    </div>
+
+    <!-- 🔴 Game Over Screen -->
     <div id="game-over" class="hidden">
       <h2 id="game-over-message"></h2>
       <p id="final-score"></p>
       <button id="play-again" class="next-btn">Play Again</button>
     </div>
 
-    <div id="game-section">
+    <!-- 🎮 Game Section -->
+    <div id="game-section" class="hidden">
       <div class="info-bar">
         <div>⏱️ Time Left: <span id="timer"></span>s</div>
         <div>🏆 Score: <span id="score"></span> | Question: <span id="question-count"></span>/10</div>
       </div>
 
-      <div class="quote-box">
-        <p id="quiz-quote"></p>
-      </div>
+<div class="quote-box">
+  <div id="spinner" class="spinner hidden"></div>
+  <p id="quiz-quote"></p>
+</div>
+
 
       <div id="options" class="options"></div>
 
       <div id="status" class="status"></div>
 
-      <button id="next-btn" class="next-btn" disabled>Next Quote</button>
+      <!-- <button id="next-btn" class="next-btn" disabled>Next Quote</button> -->
     </div>
   </div>
 
   <script src="script.js"></script>
 </body>
 </html>
+
+
